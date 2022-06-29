@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
+import 'package:first_tutorial/randomWords.dart';
 
 void main() {
   runApp(const FirstTutorial());
@@ -34,11 +34,7 @@ class FirstTutorial extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
-            Icons.star,
-            color: Colors.red[500],
-          ),
-          const Text('41')
+          const FavoriteWidget()
         ],
       ),
     );
@@ -74,7 +70,8 @@ class FirstTutorial extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: Scaffold(
+      home: // const RandomWords(),
+          Scaffold(
         appBar: AppBar(
           title: const Text('Saved Suggestions'),
         ),
@@ -107,86 +104,53 @@ class FirstTutorial extends StatelessWidget {
   }
 }
 
-class RandomWords extends StatefulWidget {
-  const RandomWords({Key? key}) : super(key: key);
+class FavoriteWidget extends StatefulWidget {
+  const FavoriteWidget({Key? key}) : super(key: key);
 
   @override
-  State<RandomWords> createState() => _RandomWordsState();
+  State<FavoriteWidget> createState() => _FavoriteWidgetState();
 }
 
-class _RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _biggerFont = const TextStyle(fontSize: 18);
-  final _saved = <WordPair>{};
+class _FavoriteWidgetState extends State<FavoriteWidget> {
+  bool _isFavorited = true;
+  int _favoriteCount = 100;
 
-  void _pushSaved() {
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: (context) {
-      final tiles = _saved.map(
-        (pair) {
-          return ListTile(
-            title: Text(
-              pair.asPascalCase,
-              style: _biggerFont,
-            ),
-          );
-        },
-      );
-      final divided = tiles.isNotEmpty
-          ? ListTile.divideTiles(tiles: tiles, context: context).toList()
-          : <Widget>[];
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Saved Suggestions'),
-        ),
-        body: ListView(children: divided),
-      );
-    }));
+  void toggleFavorite() {
+    setState(
+      () {
+        if (_isFavorited) {
+          _isFavorited = false;
+          _favoriteCount -= 1;
+        } else {
+          _isFavorited = true;
+          _favoriteCount += 1;
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Startup Name Generator'),
-        actions: [
-          IconButton(
-            onPressed: _pushSaved,
-            icon: const Icon(Icons.list),
-            tooltip: 'Saved Suggestions',
-          )
-        ],
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: 30,
-        itemBuilder: (context, i) {
-          if (i.isOdd) return const Divider();
-          final index = i ~/ 2;
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          final alreadySaved = _saved.contains(_suggestions[index]);
-          return ListTile(
-            title: Text(
-              _suggestions[index].asPascalCase,
-              style: _biggerFont,
-            ),
-            trailing: Icon(
-                alreadySaved ? Icons.favorite : Icons.favorite_border,
-                color: alreadySaved ? Colors.red : null,
-                semanticLabel: alreadySaved ? 'Remove from saved' : 'Save'),
-            onTap: () {
-              setState(() {
-                if (alreadySaved) {
-                  _saved.remove(_suggestions[index]);
-                } else {
-                  _saved.add(_suggestions[index]);
-                }
-              });
-            },
-          );
-        },
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(0),
+          child: IconButton(
+            onPressed: toggleFavorite,
+            icon: _isFavorited
+                ? Icon(
+                    Icons.star,
+                    color: Colors.red[500],
+                  )
+                : Icon(Icons.star, color: Colors.grey[500]),
+          ),
+        ),
+        SizedBox(
+          width: 25,
+          child: Text('$_favoriteCount'),
+        ),
+      ],
     );
   }
 }
