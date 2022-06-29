@@ -23,7 +23,6 @@ class FirstTutorial extends StatelessWidget {
   }
 }
 
-
 class RandomWords extends StatefulWidget {
   const RandomWords({Key? key}) : super(key: key);
 
@@ -34,8 +33,25 @@ class RandomWords extends StatefulWidget {
 class _RandomWordsState extends State<RandomWords> {
   @override
   Widget build(BuildContext context) {
-    final wordPair = WordPair.random();
-    return Text(wordPair.asPascalCase);
+    final suggestions = <WordPair>[];
+    const biggerFont = TextStyle(fontSize: 18);
+    return ListView.builder(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: 30,
+      itemBuilder: (context, i) {
+        if (i.isOdd) return const Divider();
+        final index = i ~/ 2;
+        if (index >= suggestions.length) {
+          debugPrint('=================$index==============');
+          debugPrint('=================${generateWordPairs().take(10)}==============');
+          suggestions.addAll(generateWordPairs().take(10));
+        }
+        return ListTile(
+            title: Text(
+          suggestions[index].asPascalCase,
+          style: biggerFont,
+        ));
+      },
+    );
   }
 }
-
